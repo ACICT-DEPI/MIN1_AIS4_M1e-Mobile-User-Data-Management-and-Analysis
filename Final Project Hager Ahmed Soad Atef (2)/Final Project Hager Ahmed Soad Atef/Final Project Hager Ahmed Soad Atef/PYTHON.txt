@@ -1,0 +1,322 @@
+1-Cleaning
+
+import pandas as pd
+
+data = pd.read_csv("user_behavior.csv")
+data.columns = data.columns.str.replace(' ', '_')
+
+DeviceModel = data["Device_Model"]
+OS = data["Operating_System"]
+Gender = data["Gender"]
+DeviceModelNumeric = {
+    "Google Pixel 5": 1,
+    "OnePlus 9": 2,
+    "iPhone 12": 3,
+    "Xiaomi Mi 11": 4,
+    "Samsung Galaxy S21": 5,
+}
+OSNumeric = {
+    "Android": 0,
+    "iOS": 1,
+}
+GenderNumeric = {
+    "Male": 0,
+    "Female": 1,
+}
+
+
+
+data["Device_ID"] = data["Device_Model"].replace(DeviceModelNumeric)
+data["OS_ID"] = data["Operating_System"].replace(OSNumeric)
+data["Gender"] = data["Gender"].replace(GenderNumeric)
+
+output_path = "analuser_behavior_dataset.csv"
+data.to_csv(output_path, index=False)
+
+
+---------------------------------------------------------------------------
+2-Feature Selection
+
+from sklearn.feature_selection import SelectKBest ,mutual_info_regression,chi2
+from sklearn.preprocessing import LabelEncoder
+import pandas as pd 
+
+file_path = 'user_behavior.csv'
+df = pd.read_csv(file_path)
+    
+X= df.drop('User_Behavior_Class' , axis=1)
+Y= df['User_Behavior_Class']
+
+le = LabelEncoder()
+for columns in X.columns:
+    X[columns]= le.fit_transform(X[columns])
+    
+Y = le.fit_transform(Y)
+
+selector = SelectKBest(score_func= mutual_info_regression,  k=3)#score_fun -> method of selection , k -> number of feature
+selector.fit_transform(X,Y)
+selected_feature = X.columns[selector.get_support()].values#-> select columns with True values 
+print(X[selected_feature])
+
+---------------------------------------------------------------------------
+3-App Usage Time by Age Group
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("analuser_behavior_dataset.csv")
+
+# 12. App Usage Time by Age Group (grouping into bins)
+age_bins = [0, 18, 25, 35, 45, 55, 65, 100]
+age_labels = ['<18', '18-25', '26-35', '36-45', '46-55', '56-65', '65+']
+data['Age_Group'] = pd.cut(data['Age'], bins=age_bins, labels=age_labels)
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='Age_Group', y='App_Usage_Time', data=data,palette='viridis')
+plt.title('App Usage Time by Age Group')
+plt.xlabel('Age Group')
+plt.ylabel('App Usage Time (in hours)')
+plt.show()
+
+---------------------------------------------------------------------------
+4-Correlation between Features
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+data = pd.read_csv("analuser_behavior_dataset.csv")
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(data[['App_Usage_Time', 'Battery_Drain', 'Data_Usage', 'User_Behavior_Class']].corr(), annot=True, cmap='coolwarm')
+plt.title('Correlation between Features')
+plt.show()
+---------------------------------------------------------------------------
+
+5-Gender Distribution of Users
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+# 2. Gender Distribution
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='Gender',palette='viridis')
+plt.title('Gender Distribution of Users')
+plt.xlabel('Gender')
+plt.ylabel('Count')
+plt.xticks([0, 1], ['Male', 'Female'])  # Assuming 0 = Male, 1 = Female
+plt.show()
+
+---------------------------------------------------------------------------
+6-Device Model Usage
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+plt.figure(figsize=(12, 6))
+sns.countplot(data=df, x='Device_Model', order=df['Device_Model'].value_counts().index,palette='viridis')
+plt.title('Device Model Usage')
+plt.xticks(rotation=45)
+plt.xlabel('Device Model')
+plt.ylabel('Count')
+plt.show()
+---------------------------------------------------------------------------
+
+7-Battery Drain Analysis
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(y=df['Battery_Drain'],palette='pastel')
+plt.title('Battery Drain Analysis')
+plt.ylabel('Battery Drain')
+plt.show()
+---------------------------------------------------------------------------
+8-App Usage Time Distribution
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+
+plt.figure(figsize=(10, 6))
+sns.histplot(df['App_Usage_Time'], bins=20, kde=True)
+plt.title('App Usage Time Distribution')
+plt.xlabel('App Usage Time (in hours)')
+plt.ylabel('Frequency')
+plt.show()
+
+---------------------------------------------------------------------------
+9-Number of Apps Installed by User Behavior Class
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='User_Behavior_Class', y='Number_of_Apps_Installed', data=df,palette='colorblind')
+plt.title('Number of Apps Installed by User Behavior Class')
+plt.xlabel('User Behavior Class')
+plt.ylabel('Number of Apps Installed')
+plt.show()
+---------------------------------------------------------------------------
+10-Accuracy Comparison Across Algorithms
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+final_result = pd.DataFrame({
+    'Algorithm': ['Linear regression', 'Gradient Boosting', 'Random Forest', 'Lasso', 'Ridge'],
+    'Accuracy': [0.9, 0.85, 0.987, 0.9, 0.9]
+})
+
+sns.set(style="whitegrid")
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+sns.barplot(x='Algorithm', y='Accuracy', data=final_result, palette='viridis', width=0.6)
+
+plt.title("Accuracy Comparison Across Algorithms", fontsize=16)
+plt.xlabel("Algorithms", fontsize=14)
+plt.ylabel("Accuracy Score", fontsize=14)
+
+plt.tight_layout()
+plt.show()
+---------------------------------------------------------------------------
+11-User Behavior Class Distribution
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='User_Behavior_Class',palette='viridis')
+plt.title('User Behavior Class Distribution')
+plt.xlabel('User Behavior Class')
+plt.ylabel('Count')
+plt.show()
+---------------------------------------------------------------------------
+12-Operating System Distribution of Users
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv("analuser_behavior_dataset.csv")
+
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df, x='Operating_System',palette='viridis')
+plt.title('Operating System Distribution of Users')
+plt.xlabel('Operating System')
+plt.ylabel('Count')
+plt.show()
+---------------------------------------------------------------------------
+13-Algorithms
+
+import pandas as pd
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+
+data = pd.read_csv("analuser_behavior_dataset.csv")
+
+x = data.drop(['Device_Model', 'Operating_System','User_Behavior_Class'], axis=1)
+y = data["User_Behavior_Class"]
+xTrain, xTest, yTrain, yTest = train_test_split(x, y, test_size=0.2, random_state=42)
+lr = LinearRegression()
+lr.fit(xTrain, yTrain)
+yPredict = lr.predict(xTest)
+mse = mean_squared_error(yTest, yPredict)
+print("Mean Squared Error : ", mse)
+print("linear regression score : ", lr.score(xTest, yTest))
+
+# ---------------------------------------------------------------------------------- Lasso -------------------------------------------------------------------------------
+lasso = make_pipeline(
+    PolynomialFeatures(degree=2), Lasso(alpha=0.3)
+)  # can use PowerTransformer() instead of polynomial
+lasso.fit(xTrain, yTrain)
+print("lasso score : ", lasso.score(xTest, yTest))
+
+# ---------------------------------------------------------------------------------- Rigid -------------------------------------------------------------------------------
+
+rg = Ridge(alpha=0.3)
+rg.fit(xTrain, yTrain)
+yPredict = rg.predict(xTest)
+mse = mean_squared_error(yTest, yPredict)
+print("Mean Squared Error : ", mse)
+print("Ridge score : ", rg.score(xTest, yTest))
+
+# ---------------------------------------------------------------------------------- Logistic Regression  -------------------------------------------------------------------------------
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+lr = LogisticRegression()
+lr.fit(xTrain,yTrain)
+Y_predict = lr.predict(xTest) 
+print('Logistic Regression score : ',accuracy_score(yTest, Y_predict))
+

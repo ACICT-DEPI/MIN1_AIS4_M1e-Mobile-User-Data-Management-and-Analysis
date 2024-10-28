@@ -1,0 +1,117 @@
+Star Schema
+
+CREATE TABLE Dim_User (
+    User_ID INT PRIMARY KEY,
+    Age INT,
+    Gender INT,
+    User_Behavior_Class INT
+);
+
+
+CREATE TABLE Dim_Device (
+    Device_ID INT PRIMARY KEY,
+    Device_Model VARCHAR(50)
+   
+);
+
+
+CREATE TABLE Dim_Operating_System (
+    OS_ID INT PRIMARY KEY,
+    Operating_System VARCHAR(50)
+);
+
+-- Create Fact Table
+CREATE TABLE Fact_User_Device_Usage (
+    User_ID INT
+    Device_ID INT,
+    OS_ID INT,
+    App_Usage_Time FLOAT,
+    Screen_On_Time FLOAT,
+    Battery_Drain FLOAT,
+    Number_of_Apps_Installed INT,
+    Data_Usage FLOAT,
+    FOREIGN KEY (User_ID) REFERENCES Dim_User(User_ID),
+    FOREIGN KEY (Device_ID) REFERENCES Dim_Device(Device_ID),
+    FOREIGN KEY (OS_ID) REFERENCES Dim_Operating_System(OS_ID)
+);
+
+----------------------------------------------------------------------
+Dublicates Schema
+
+CREATE TABLE temp_Dim_User (
+    User_ID INT PRIMARY KEY,
+    Age INT,
+    Gender INT,
+    User_Behavior_Class INT
+);
+
+INSERT INTO  temp_Dim_User 
+SELECT DISTINCT *
+FROM Dim_User 
+
+DELETE FROM Dim_User
+
+INSERT INTO Dim_User
+SELECT * FROM temp_Dim_User
+
+DROP TABLE temp_Dim_User
+
+
+CREATE TABLE temp_Dim_Device (
+    Device_ID INT PRIMARY KEY,
+    Device_Model VARCHAR(50),
+    Brand VARCHAR(50)
+);
+
+INSERT INTO  temp_Dim_Device
+SELECT DISTINCT *
+FROM Dim_Device 
+
+DELETE FROM Dim_Device
+
+INSERT INTO Dim_Device
+SELECT * FROM temp_Dim_Device
+
+DROP TABLE temp_Dim_Device
+
+CREATE TABLE temp_Dim_Operating_System (
+    OS_ID INT PRIMARY KEY,
+    Operating_System VARCHAR(50)
+);
+
+INSERT INTO  temp_Dim_Operating_System
+SELECT DISTINCT *
+FROM Dim_Operating_System 
+
+DELETE FROM Dim_Operating_System
+
+INSERT INTO Dim_User
+SELECT * FROM temp_Dim_Operating_System
+
+DROP TABLE temp_Dim_Operating_System
+
+CREATE TABLE temp_Fact_User_Device_Usage (
+    User_ID INT,
+    Device_ID INT,
+    OS_ID INT,
+    App_Usage_Time FLOAT,
+    Screen_On_Time FLOAT,
+    Battery_Drain FLOAT,
+    Number_of_Apps_Installed INT,
+    Data_Usage FLOAT
+	FOREIGN KEY (User_ID) REFERENCES Dim_User(User_ID),
+    FOREIGN KEY (Device_ID) REFERENCES Dim_Device(Device_ID),
+    FOREIGN KEY (OS_ID) REFERENCES Dim_Operating_System(OS_ID)
+);
+
+
+INSERT INTO  temp_Fact_User_Device_Usage
+SELECT DISTINCT *
+FROM Fact_User_Device_Usage
+
+DELETE FROM Fact_User_Device_Usage
+
+INSERT INTO Fact_User_Device_Usage
+SELECT * FROM temp_Fact_User_Device_Usage
+
+DROP TABLE temp_Fact_User_Device_Usage
